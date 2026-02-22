@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart HRMS - Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f5f7fa; min-height: 100vh; }
+    
+    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+    .login-box { background: white; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; width: 100%; max-width: 420px; }
+    .login-header { background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%); padding: 40px 30px; text-align: center; color: white; }
+    .login-header i { font-size: 48px; margin-bottom: 15px; }
+    .login-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+    .login-header p { opacity: 0.9; font-size: 14px; }
+    .login-form { padding: 40px 30px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; transition: all 0.3s; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4285f4; box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+    .btn-primary { background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3); }
+    .btn-secondary { background: #f5f5f5; color: #333; }
+    .btn-success { background: linear-gradient(135deg, #34a853 0%, #0d9488 100%); color: white; }
+    .btn-danger { background: linear-gradient(135deg, #ea4335 0%, #dc2626 100%); color: white; }
+    .btn-warning { background: linear-gradient(135deg, #fbbc04 0%, #f59e0b 100%); color: #333; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-full { width: 100%; }
+    
+    .dashboard-container { display: none; }
+    .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); z-index: 1000; transition: transform 0.3s; overflow-y: auto; }
+    .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 12px; }
+    .sidebar-header i { font-size: 32px; color: #4285f4; }
+    .sidebar-header h2 { font-size: 20px; font-weight: 700; color: white; }
+    .sidebar-menu { padding: 15px 0; }
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 25px; color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: all 0.3s; cursor: pointer; border-left: 3px solid transparent; }
+    .menu-item:hover, .menu-item.active { background: rgba(66, 133, 244, 0.2); color: white; border-left-color: #4285f4; }
+    .menu-item i { width: 20px; text-align: center; }
+    
+    .main-content { margin-left: 260px; padding: 30px; min-height: 100vh; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: white; padding: 20px 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+    .user-info { display: flex; align-items: center; gap: 15px; }
+    .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #4285f4 0%, #0d47a1 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; }
+    .user-details h3 { font-size: 16px; font-weight: 600; color: #333; }
+    .user-details p { font-size: 13px; color: #666; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+    .stat-card.primary::before { background: #4285f4; }
+    .stat-card.success::before { background: #34a853; }
+    .stat-card.warning::before { background: #fbbc04; }
+    .stat-card.danger::before { background: #ea4335; }
+    .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px; }
+    .stat-card.primary .stat-icon { background: rgba(66, 133, 244, 0.1); color: #4285f4; }
+    .stat-card.success .stat-icon { background: rgba(52, 168, 83, 0.1); color: #34a853; }
+    .stat-card.warning .stat-icon { background: rgba(251, 188, 4, 0.1); color: #fbbc04; }
+    .stat-card.danger .stat-icon { background: rgba(234, 67, 53, 0.1); color: #ea4335; }
+    .stat-value { font-size: 32px; font-weight: 700; color: #333; margin-bottom: 5px; }
+    .stat-label { font-size: 14px; color: #666; }
+    
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    
+    .card { background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 25px; }
+    .card-header { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .card-header h3 { font-size: 18px; font-weight: 600; color: #333; }
+    .card-body { padding: 25px; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    th { background: #f8f9fa; font-weight: 600; color: #333; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { font-size: 14px; color: #666; }
+    tr:hover { background: #f8f9fa; }
+    
+    .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-info { background: #d1ecf1; color: #0c5460; }
+    .badge-secondary { background: #e2e3e5; color: #383d41; }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 15px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 18px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+    .modal-body { padding: 25px; }
+    .modal-footer { padding: 15px 25px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 10px; }
+    
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    
+    .mobile-toggle { display: none; position: fixed; top: 20px; left: 20px; z-index: 1100; background: white; border: none; width: 45px; height: 45px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); cursor: pointer; }
+    
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 20px; padding-top: 80px; }
+      .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    .action-buttons { display: flex; gap: 8px; }
+    .loading-spinner { text-align: center; padding: 40px; }
+    .loading-spinner i { font-size: 32px; color: #4285f4; }
+    .scrollable-table { max-height: 400px; overflow-y: auto; }
+    
+    .roster-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+    .roster-config-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; }
+    .roster-config-item label { min-width: 120px; font-weight: 500; }
+    .roster-config-item select { flex: 1; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; }
+    
+    .shift-badge { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 500; }
+    .shift-badge.shift-a { background: #e3f2fd; color: #1565c0; }
+    .shift-badge.shift-b { background: #f3e5f5; color: #7b1fa2; }
+    .shift-badge.shift-c { background: #fce4ec; color: #c2185b; }
+    .shift-badge.off { background: #fff3e0; color: #e65100; }
+    .shift-badge.buffer { background: #e8f5e9; color: #2e7d32; }
+    
+    .policy-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+    .policy-box h4 { color: #1565c0; margin-bottom: 10px; }
+    .policy-box ul { margin-left: 20px; color: #333; }
+    .policy-box li { margin-bottom: 5px; }
+    
+    /* Report specific styles */
+    .report-controls { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+    .report-preview { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 20px; }
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .report-table th, .report-table td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+    .report-table th { background: #4285f4; color: white; }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <i class="fas fa-user-shield"></i>
+        <h1>Smart HRMS</h1>
+        <p>Admin Dashboard</p>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="Enter admin email" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="handleLogin()">
+          <i class="fas fa-sign-in-alt"></i>
+          Sign In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardPage" class="dashboard-container">
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-user-shield"></i>
+        <h2>Admin Panel</h2>
+      </div>
+      <nav class="sidebar-menu">
+        <a class="menu-item active" onclick="showSection('dashboard')">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="menu-item" onclick="showSection('employees')">
+          <i class="fas fa-users"></i>
+          <span>Employees</span>
+        </a>
+        <a class="menu-item" onclick="showSection('attendance')">
+          <i class="fas fa-clock"></i>
+          <span>Attendance Logs</span>
+        </a>
+        <a class="menu-item" onclick="showSection('reports')">
+          <i class="fas fa-chart-bar"></i>
+          <span>Reports</span>
+        </a>
+        <a class="menu-item" onclick="showSection('leaves')">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Leave Management</span>
+        </a>
+        <a class="menu-item" onclick="showSection('corrections')">
+          <i class="fas fa-edit"></i>
+          <span>Punch Corrections</span>
+        </a>
+        <a class="menu-item" onclick="showSection('warnings')">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Warning Letters</span>
+        </a>
+        <a class="menu-item" onclick="showSection('holidays')">
+          <i class="fas fa-umbrella-beach"></i>
+          <span>Holidays</span>
+        </a>
+        <a class="menu-item" onclick="showSection('roster')">
+          <i class="fas fa-calendar-week"></i>
+          <span>Roster</span>
+        </a>
+        <a class="menu-item" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="top-bar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div class="user-details">
+            <h3 id="userName">Admin</h3>
+            <p id="userRole">Administrator</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <section id="dashboardSection" class="content-section active">
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value" id="totalEmployees">0</div>
+            <div class="stat-label">Total Employees</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            <div class="stat-value" id="todayPresent">0</div>
+            <div class="stat-label">Present Today</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="todayLate">0</div>
+            <div class="stat-label">Late Today</div>
+          </div>
+          <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-user-times"></i></div>
+            <div class="stat-value" id="todayAbsent">0</div>
+            <div class="stat-label">Absent Today</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Attendance Overview</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="attendanceChart" height="200"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Department Distribution</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="departmentChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Pending Leave Requests</h3>
+              <span class="badge badge-warning" id="pendingLeaveCount">0</span>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive scrollable-table">
+                <table>
+                  <thead><tr><th>Employee</th><th>Type</th><th>Days</th><th>Action</th></tr></thead>
+                  <tbody id="pendingLeavesBody">
+                    <tr><td colspan="4" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Punch Correction Requests</h3>
+              <span class="badge badge-info" id="pendingCorrectionCount">0</span>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive scrollable-table">
+                <table>
+                  <thead><tr><th>Employee</th><th>Date</th><th>Reason</th><th>Action</th></tr></thead>
+                  <tbody id="pendingCorrectionsBody">
+                    <tr><td colspan="4" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Employees Section -->
+      <section id="employeesSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Employee Management</h3>
+            <button class="btn btn-primary btn-sm" onclick="showEmployeeModal()">
+              <i class="fas fa-plus"></i> Add Employee
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Shift</th><th>Week Off</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                  <tr><td colspan="8" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attendance Logs Section -->
+      <section id="attendanceSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Attendance Logs</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row" style="margin-bottom: 20px;">
+              <div class="form-group">
+                <label>From Date</label>
+                <input type="date" id="attStartDate">
+              </div>
+              <div class="form-group">
+                <label>To Date</label>
+                <input type="date" id="attEndDate">
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="loadAttendanceLogs()">
+                  <i class="fas fa-search"></i> Search
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Employee</th><th>Date</th><th>Punch In</th><th>Punch Out</th><th>Shift</th><th>Work Hours</th><th>Status</th></tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                  <tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reports Section - NEW -->
+      <section id="reportsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-chart-bar"></i> Monthly Attendance Report</h3>
+          </div>
+          <div class="card-body">
+            <div class="report-controls">
+              <div class="form-group">
+                <label>Select Month</label>
+                <select id="reportMonth">
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Select Year</label>
+                <select id="reportYear"></select>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="generateReport()">
+                  <i class="fas fa-file-alt"></i> Generate Report
+                </button>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-success" id="downloadReportBtn" onclick="downloadReport()" style="display: none;">
+                  <i class="fas fa-download"></i> Download
+                </button>
+              </div>
+            </div>
+            
+            <div class="report-preview" id="reportPreview" style="display: none;">
+              <h4 id="reportTitle" style="text-align: center; margin-bottom: 15px;"></h4>
+              <div class="table-responsive">
+                <table class="report-table" id="reportTable">
+                  <thead>
+                    <tr>
+                      <th>Employee ID</th>
+                      <th>Name</th>
+                      <th>Department</th>
+                      <th>Present</th>
+                      <th>Late</th>
+                      <th>Half Day</th>
+                      <th>Absent</th>
+                      <th>Total Hours</th>
+                      <th>OT Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportTableBody"></tbody>
+                </table>
+              </div>
+              <div style="margin-top: 15px; text-align: center; color: #666;">
+                <small id="reportGenerated"></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Leaves Section -->
+      <section id="leavesSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Leave Applications</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Leave ID</th><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="leavesTableBody">
+                  <tr><td colspan="9" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Corrections Section -->
+      <section id="correctionsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Punch Correction Requests</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Request ID</th><th>Employee</th><th>Date</th><th>Current Punch</th><th>Requested Punch</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="correctionsTableBody">
+                  <tr><td colspan="8" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Warnings Section -->
+      <section id="warningsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Warning Letters</h3>
+            <button class="btn btn-warning btn-sm" onclick="showWarningModal()">
+              <i class="fas fa-exclamation-triangle"></i> Issue Warning
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Warning ID</th><th>Employee</th><th>Date</th><th>Reason</th><th>Description</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="warningsTableBody">
+                  <tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Holidays Section -->
+      <section id="holidaysSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Holiday Management</h3>
+            <button class="btn btn-primary btn-sm" onclick="showHolidayModal()">
+              <i class="fas fa-plus"></i> Add Holiday
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Date</th><th>Type</th><th>Optional</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="holidaysTableBody">
+                  <tr><td colspan="5" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roster Section -->
+      <section id="rosterSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Employee Week Off Configuration</h3>
+          </div>
+          <div class="card-body">
+            <p style="margin-bottom: 15px; color: #666;">Configure each employee's preferred week off day.</p>
+            <div class="roster-config-grid" id="weekOffConfigGrid"></div>
+            <button class="btn btn-success" onclick="saveWeekOffConfigs()" style="margin-top: 20px;">
+              <i class="fas fa-save"></i> Save Configurations
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Auto Roster Generator</h3>
+          </div>
+          <div class="card-body">
+            <div class="policy-box">
+              <h4><i class="fas fa-info-circle"></i> Roster Policy</h4>
+              <ul>
+                <li><strong>Shifts:</strong> A (06:00-14:00), B (14:00-22:00), C (22:00-06:00)</li>
+                <li><strong>Minimum employees per shift:</strong> 3</li>
+                <li><strong>Buffer employee:</strong> 1 (to fill shortages)</li>
+                <li><strong>Rotation:</strong> A → OFF → B → OFF → C → OFF → A</li>
+              </ul>
+            </div>
+            <div class="form-row" style="margin-bottom: 20px;">
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="rosterStartDate">
+              </div>
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="rosterEndDate">
+              </div>
+              <div class="form-group">
+                <label>Week Off Count</label>
+                <select id="weekOffCount">
+                  <option value="0">No weekly off</option>
+                  <option value="1">1 employee off</option>
+                  <option value="2" selected>2 employees off</option>
+                  <option value="3">3 employees off</option>
+                </select>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-success" onclick="generateRoster()">
+                  <i class="fas fa-magic"></i> Generate Roster
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>View Roster</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row" style="margin-bottom: 20px;">
+              <div class="form-group">
+                <label>From Date</label>
+                <input type="date" id="viewRosterStart">
+              </div>
+              <div class="form-group">
+                <label>To Date</label>
+                <input type="date" id="viewRosterEnd">
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="loadRoster()">
+                  <i class="fas fa-search"></i> View
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr><th>Employee</th><th>Date</th><th>Day</th><th>Shift</th><th>Status</th></tr>
+                </thead>
+                <tbody id="rosterTableBody">
+                  <tr><td colspan="5" style="text-align: center; color: #666;">Select date range to view roster</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Employee Modal -->
+  <div class="modal" id="employeeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="employeeModalTitle">Add Employee</h3>
+        <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editEmployeeId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="empName" placeholder="Enter full name">
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="empEmail" placeholder="Enter email">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" id="empPhone" placeholder="Enter phone number">
+          </div>
+          <div class="form-group">
+            <label>Join Date</label>
+            <input type="date" id="empJoinDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Department *</label>
+            <select id="empDepartment">
+              <option value="">Select Department</option>
+              <option value="IT">IT</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Designation *</label>
+            <input type="text" id="empDesignation" placeholder="Enter designation">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Role</label>
+            <select id="empRole">
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Shift</label>
+            <select id="empShift">
+              <option value="A">Shift A (06:00 - 14:00)</option>
+              <option value="B">Shift B (14:00 - 22:00)</option>
+              <option value="C">Shift C (22:00 - 06:00)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Week Off Day</label>
+            <select id="empWeekOff">
+              <option value="Sunday">Sunday</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+            </select>
+          </div>
+          <div class="form-group" id="passwordField">
+            <label>Password</label>
+            <input type="password" id="empPassword" placeholder="Default: password123">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" id="empBankName" placeholder="Enter bank name">
+          </div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" id="empAccountNumber" placeholder="Enter account number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>IFSC Code</label>
+          <input type="text" id="empIFSC" placeholder="Enter IFSC code">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('employeeModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEmployee()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning Modal -->
+  <div class="modal" id="warningModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Issue Warning Letter</h3>
+        <button class="modal-close" onclick="closeModal('warningModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Employee *</label>
+          <select id="warningEmployee"><option value="">Select Employee</option></select>
+        </div>
+        <div class="form-group">
+          <label>Issue Date</label>
+          <input type="date" id="warningDate">
+        </div>
+        <div class="form-group">
+          <label>Reason *</label>
+          <select id="warningReason">
+            <option value="">Select Reason</option>
+            <option value="Safety violation">Safety violation</option>
+            <option value="Leave without approval">Leave without approval</option>
+            <option value="Misbehavior">Misbehavior</option>
+            <option value="Late reporting">Late reporting</option>
+            <option value="Work not completed">Work not completed</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="warningDescription" rows="4" placeholder="Enter detailed description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('warningModal')">Cancel</button>
+        <button class="btn btn-warning" onclick="issueWarning()">Issue Warning</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Holiday Modal -->
+  <div class="modal" id="holidayModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Holiday</h3>
+        <button class="modal-close" onclick="closeModal('holidayModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Holiday Name *</label>
+          <input type="text" id="holidayName" placeholder="Enter holiday name">
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="holidayDate">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="holidayType">
+            <option value="National">National Holiday</option>
+            <option value="Regional">Regional Holiday</option>
+            <option value="Company">Company Holiday</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="holidayOptional"> Optional Holiday</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('holidayModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveHoliday()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Modal -->
+  <div class="modal" id="actionModal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 id="actionModalTitle">Action</h3>
+        <button class="modal-close" onclick="closeModal('actionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="actionModalMessage"></p>
+        <div class="form-group">
+          <label>Comments (Optional)</label>
+          <textarea id="actionComments" rows="3" placeholder="Enter comments"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('actionModal')">Cancel</button>
+        <button class="btn btn-danger" id="actionRejectBtn" onclick="executeAction('reject')">Reject</button>
+        <button class="btn btn-success" id="actionApproveBtn" onclick="executeAction('approve')">Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global Variables
+    let currentUser = null;
+    let sessionId = null;
+    let currentAction = null;
+    let currentActionId = null;
+    let attendanceChart = null;
+    let departmentChart = null;
+    let employeesList = [];
+    let currentReportData = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedSession = localStorage.getItem('hrms_admin_session');
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          sessionId = session.sessionId;
+          validateSession();
+        } catch(e) {
+          localStorage.removeItem('hrms_admin_session');
+        }
+      }
+      
+      // Set default dates
+      const today = new Date();
+      const monthStart = today.toISOString().substring(0, 8) + '01';
+      
+      document.getElementById('attStartDate').value = monthStart;
+      document.getElementById('attEndDate').value = today.toISOString().split('T')[0];
+      document.getElementById('warningDate').value = today.toISOString().split('T')[0];
+      
+      // Initialize report year dropdown
+      const yearSelect = document.getElementById('reportYear');
+      const currentYear = today.getFullYear();
+      for (let y = currentYear; y >= currentYear - 5; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+      }
+      document.getElementById('reportMonth').value = today.getMonth() + 1;
+    });
+
+    // Session Validation
+    function validateSession() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.valid && result.user.role === 'admin') {
+            currentUser = result.user;
+            showDashboard();
+          } else {
+            localStorage.removeItem('hrms_admin_session');
+          }
+        })
+        .validateSession(sessionId);
+    }
+
+    // Login Handler
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        Swal.fire('Error', 'Please enter email and password', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Signing in...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            if (result.user.role !== 'admin') {
+              Swal.fire('Error', 'Access denied. Admin only.', 'error');
+              return;
+            }
+            currentUser = result.user;
+            sessionId = result.user.sessionId;
+            localStorage.setItem('hrms_admin_session', JSON.stringify({ sessionId: sessionId }));
+            showDashboard();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .login(email, password);
+    }
+
+    // Dashboard Functions
+    function showDashboard() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboardPage').style.display = 'block';
+      
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userRole').textContent = 'Administrator';
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+      
+      loadDashboard();
+      loadEmployees();
+      loadHolidays();
+      loadWarnings();
+      loadAllLeaves();
+      loadAllCorrections();
+    }
+
+    function loadDashboard() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            const dashboard = result.dashboard;
+            
+            document.getElementById('totalEmployees').textContent = dashboard.totalEmployees;
+            document.getElementById('todayPresent').textContent = dashboard.todayStats.present;
+            document.getElementById('todayLate').textContent = dashboard.todayStats.late;
+            document.getElementById('todayAbsent').textContent = dashboard.todayStats.absent;
+            
+            const pendingLeaves = dashboard.pendingLeaves || [];
+            const pendingCorrections = dashboard.pendingCorrections || [];
+            
+            document.getElementById('pendingLeaveCount').textContent = pendingLeaves.length;
+            document.getElementById('pendingCorrectionCount').textContent = pendingCorrections.length;
+            
+            const leavesBody = document.getElementById('pendingLeavesBody');
+            if (pendingLeaves.length > 0) {
+              leavesBody.innerHTML = pendingLeaves.map(leave => `
+                <tr>
+                  <td>${getEmployeeName(leave.employeeId)}</td>
+                  <td>${leave.leaveType}</td>
+                  <td>${leave.days}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-success btn-sm" onclick="quickAction('leave', '${leave.leaveId}', 'approve')"><i class="fas fa-check"></i></button>
+                      <button class="btn btn-danger btn-sm" onclick="quickAction('leave', '${leave.leaveId}', 'reject')"><i class="fas fa-times"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('');
+            } else {
+              leavesBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #666;">No pending requests</td></tr>';
+            }
+            
+            const correctionsBody = document.getElementById('pendingCorrectionsBody');
+            if (pendingCorrections.length > 0) {
+              correctionsBody.innerHTML = pendingCorrections.map(correction => `
+                <tr>
+                  <td>${getEmployeeName(correction.employeeId)}</td>
+                  <td>${correction.date}</td>
+                  <td>${correction.reason || '-'}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-success btn-sm" onclick="quickAction('correction', '${correction.requestId}', 'approve')"><i class="fas fa-check"></i></button>
+                      <button class="btn btn-danger btn-sm" onclick="quickAction('correction', '${correction.requestId}', 'reject')"><i class="fas fa-times"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('');
+            } else {
+              correctionsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #666;">No pending requests</td></tr>';
+            }
+            
+            createCharts(dashboard);
+          }
+        })
+        .getAdminDashboard(sessionId);
+    }
+
+    function getEmployeeName(employeeId) {
+      const emp = employeesList.find(e => e.id === employeeId);
+      return emp ? emp.name : employeeId;
+    }
+
+    function loadEmployees() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            employeesList = result.employees;
+            renderEmployeesTable();
+            renderWeekOffConfigGrid();
+            updateEmployeeDropdowns();
+          }
+        })
+        .getEmployees(sessionId);
+    }
+
+    function renderEmployeesTable() {
+      const tbody = document.getElementById('employeesTableBody');
+      if (employeesList.length > 0) {
+        tbody.innerHTML = employeesList.map(emp => `
+          <tr>
+            <td>${emp.id}</td>
+            <td>${emp.name}</td>
+            <td>${emp.email}</td>
+            <td>${emp.department}</td>
+            <td><span class="shift-badge shift-${emp.shift.toLowerCase()}">${emp.shift}</span></td>
+            <td>${emp.weekOffDay || 'Sunday'}</td>
+            <td><span class="badge ${emp.status === 'active' ? 'badge-success' : 'badge-danger'}">${emp.status}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-secondary btn-sm" onclick="editEmployee('${emp.id}')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-${emp.status === 'active' ? 'warning' : 'success'} btn-sm" onclick="toggleEmployeeStatus('${emp.id}', '${emp.status}')"><i class="fas fa-${emp.status === 'active' ? 'ban' : 'check'}"></i></button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No employees found</td></tr>';
+      }
+    }
+
+    function renderWeekOffConfigGrid() {
+      const grid = document.getElementById('weekOffConfigGrid');
+      grid.innerHTML = employeesList.filter(e => e.status === 'active').map(emp => `
+        <div class="roster-config-item">
+          <label>${emp.name}</label>
+          <select id="weekOff_${emp.id}" data-employee-id="${emp.id}">
+            <option value="Sunday" ${emp.weekOffDay === 'Sunday' ? 'selected' : ''}>Sunday</option>
+            <option value="Monday" ${emp.weekOffDay === 'Monday' ? 'selected' : ''}>Monday</option>
+            <option value="Tuesday" ${emp.weekOffDay === 'Tuesday' ? 'selected' : ''}>Tuesday</option>
+            <option value="Wednesday" ${emp.weekOffDay === 'Wednesday' ? 'selected' : ''}>Wednesday</option>
+            <option value="Thursday" ${emp.weekOffDay === 'Thursday' ? 'selected' : ''}>Thursday</option>
+            <option value="Friday" ${emp.weekOffDay === 'Friday' ? 'selected' : ''}>Friday</option>
+            <option value="Saturday" ${emp.weekOffDay === 'Saturday' ? 'selected' : ''}>Saturday</option>
+          </select>
+        </div>
+      `).join('');
+    }
+
+    function saveWeekOffConfigs() {
+      const selects = document.querySelectorAll('#weekOffConfigGrid select');
+      selects.forEach(select => {
+        const employeeId = select.getAttribute('data-employee-id');
+        const weekOffDay = select.value;
+        google.script.run.updateEmployee(sessionId, employeeId, { weekOffDay: weekOffDay });
+      });
+      Swal.fire('Success', 'Week off configurations saved!', 'success');
+    }
+
+    function updateEmployeeDropdowns() {
+      const select = document.getElementById('warningEmployee');
+      select.innerHTML = '<option value="">Select Employee</option>' +
+        employeesList.filter(e => e.status === 'active').map(emp => 
+          `<option value="${emp.id}">${emp.name} (${emp.id})</option>`
+        ).join('');
+    }
+
+    // Employee Management
+    function showEmployeeModal() {
+      document.getElementById('editEmployeeId').value = '';
+      document.getElementById('employeeModalTitle').textContent = 'Add Employee';
+      document.getElementById('empName').value = '';
+      document.getElementById('empEmail').value = '';
+      document.getElementById('empPhone').value = '';
+      document.getElementById('empDepartment').value = '';
+      document.getElementById('empDesignation').value = '';
+      document.getElementById('empJoinDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('empRole').value = 'employee';
+      document.getElementById('empShift').value = 'A';
+      document.getElementById('empWeekOff').value = 'Sunday';
+      document.getElementById('empPassword').value = '';
+      document.getElementById('empBankName').value = '';
+      document.getElementById('empAccountNumber').value = '';
+      document.getElementById('empIFSC').value = '';
+      document.getElementById('passwordField').style.display = 'block';
+      document.getElementById('employeeModal').classList.add('active');
+    }
+
+    function editEmployee(employeeId) {
+      const emp = employeesList.find(e => e.id === employeeId);
+      if (emp) {
+        document.getElementById('editEmployeeId').value = emp.id;
+        document.getElementById('employeeModalTitle').textContent = 'Edit Employee';
+        document.getElementById('empName').value = emp.name;
+        document.getElementById('empEmail').value = emp.email;
+        document.getElementById('empPhone').value = emp.phone || '';
+        document.getElementById('empDepartment').value = emp.department;
+        document.getElementById('empDesignation').value = emp.designation;
+        document.getElementById('empJoinDate').value = emp.joinDate || '';
+        document.getElementById('empRole').value = emp.role;
+        document.getElementById('empShift').value = emp.shift;
+        document.getElementById('empWeekOff').value = emp.weekOffDay || 'Sunday';
+        document.getElementById('empBankName').value = emp.bankName || '';
+        document.getElementById('empAccountNumber').value = emp.accountNumber || '';
+        document.getElementById('empIFSC').value = emp.ifscCode || '';
+        document.getElementById('passwordField').style.display = 'none';
+        document.getElementById('employeeModal').classList.add('active');
+      }
+    }
+
+    function saveEmployee() {
+      const employeeId = document.getElementById('editEmployeeId').value;
+      const employeeData = {
+        name: document.getElementById('empName').value.trim(),
+        email: document.getElementById('empEmail').value.trim(),
+        phone: document.getElementById('empPhone').value.trim(),
+        department: document.getElementById('empDepartment').value,
+        designation: document.getElementById('empDesignation').value.trim(),
+        joinDate: document.getElementById('empJoinDate').value,
+        role: document.getElementById('empRole').value,
+        shift: document.getElementById('empShift').value,
+        weekOffDay: document.getElementById('empWeekOff').value,
+        password: document.getElementById('empPassword').value || 'password123',
+        bankName: document.getElementById('empBankName').value.trim(),
+        accountNumber: document.getElementById('empAccountNumber').value.trim(),
+        ifscCode: document.getElementById('empIFSC').value.trim()
+      };
+
+      if (!employeeData.name || !employeeData.email || !employeeData.department || !employeeData.designation) {
+        Swal.fire('Error', 'Please fill all required fields', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      if (employeeId) {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire('Success', result.message, 'success');
+              closeModal('employeeModal');
+              loadEmployees();
+            } else {
+              Swal.fire('Error', result.message, 'error');
+            }
+          })
+          .updateEmployee(sessionId, employeeId, employeeData);
+      } else {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire('Success', result.message, 'success');
+              closeModal('employeeModal');
+              loadEmployees();
+              loadDashboard();
+            } else {
+              Swal.fire('Error', result.message, 'error');
+            }
+          })
+          .addEmployee(sessionId, employeeData);
+      }
+    }
+
+    function toggleEmployeeStatus(employeeId, currentStatus) {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const action = newStatus === 'active' ? 'activate' : 'deactivate';
+      
+      Swal.fire({
+        title: action.charAt(0).toUpperCase() + action.slice(1) + ' Employee?',
+        text: 'Are you sure you want to ' + action + ' this employee?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: newStatus === 'active' ? '#34a853' : '#ea4335',
+        confirmButtonText: 'Yes, ' + action
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                loadEmployees();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .updateEmployee(sessionId, employeeId, { status: newStatus });
+        }
+      });
+    }
+
+    // Attendance Logs
+    function loadAttendanceLogs() {
+      const startDate = document.getElementById('attStartDate').value;
+      const endDate = document.getElementById('attEndDate').value;
+
+      if (!startDate || !endDate) {
+        Swal.fire('Error', 'Please select date range', 'error');
+        return;
+      }
+
+      const tbody = document.getElementById('attendanceTableBody');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.logs.length > 0) {
+            tbody.innerHTML = result.logs.map(log => `
+              <tr>
+                <td>${getEmployeeName(log.employeeId)}</td>
+                <td>${log.date}</td>
+                <td>${log.punchIn || '-'}</td>
+                <td>${log.punchOut || '-'}</td>
+                <td><span class="shift-badge shift-${log.shift.toLowerCase()}">${log.shift}</span></td>
+                <td>${log.workHours || 0} hrs</td>
+                <td><span class="badge ${getStatusBadgeClass(log.status)}">${log.status}</span></td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666;">No records found</td></tr>';
+          }
+        })
+        .getAttendanceLogs(sessionId, startDate, endDate);
+    }
+
+    // Monthly Attendance Report - NEW
+    function generateReport() {
+      const month = parseInt(document.getElementById('reportMonth').value);
+      const year = parseInt(document.getElementById('reportYear').value);
+
+      if (!month || !year) {
+        Swal.fire('Error', 'Please select month and year', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Generating Report...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            currentReportData = result;
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('reportTitle').textContent = 'Monthly Attendance Report - ' + monthNames[month - 1] + ' ' + year;
+            
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = result.reportData.map(row => `
+              <tr>
+                <td>${row.employeeId}</td>
+                <td>${row.name}</td>
+                <td>${row.department}</td>
+                <td style="background: #d4edda;">${row.presentDays}</td>
+                <td style="background: #fff3cd;">${row.lateDays}</td>
+                <td style="background: #e2e3e5;">${row.halfDays}</td>
+                <td style="background: #f8d7da;">${row.absentDays}</td>
+                <td>${row.totalWorkHours}</td>
+                <td style="background: #e1bee7;">${row.otHours}</td>
+              </tr>
+            `).join('');
+            
+            document.getElementById('reportGenerated').textContent = 'Generated on: ' + new Date().toLocaleString();
+            document.getElementById('reportPreview').style.display = 'block';
+            document.getElementById('downloadReportBtn').style.display = 'inline-flex';
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .generateMonthlyAttendanceReport(sessionId, month, year);
+    }
+
+    function downloadReport() {
+      if (!currentReportData || !currentReportData.htmlContent) {
+        Swal.fire('Error', 'No report data available. Please generate report first.', 'error');
+        return;
+      }
+
+      const htmlContent = currentReportData.htmlContent;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Attendance_Report_' + currentReportData.month + '_' + currentReportData.year + '.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Leave Management
+    function loadAllLeaves() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('leavesTableBody');
+          if (result.success && result.leaves.length > 0) {
+            tbody.innerHTML = result.leaves.map(leave => `
+              <tr>
+                <td>${leave.leaveId}</td>
+                <td>${getEmployeeName(leave.employeeId)}</td>
+                <td>${leave.leaveType}</td>
+                <td>${leave.startDate}</td>
+                <td>${leave.endDate}</td>
+                <td>${leave.days}</td>
+                <td>${leave.reason || '-'}</td>
+                <td><span class="badge ${getStatusBadgeClass(leave.status)}">${leave.status}</span></td>
+                <td>
+                  ${leave.status === 'Pending' ? `
+                    <div class="action-buttons">
+                      <button class="btn btn-success btn-sm" onclick="quickAction('leave', '${leave.leaveId}', 'approve')"><i class="fas fa-check"></i></button>
+                      <button class="btn btn-danger btn-sm" onclick="quickAction('leave', '${leave.leaveId}', 'reject')"><i class="fas fa-times"></i></button>
+                    </div>
+                  ` : '-'}
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #666;">No leave applications</td></tr>';
+          }
+        })
+        .getLeaveApplications(sessionId);
+    }
+
+    function loadAllCorrections() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('correctionsTableBody');
+          if (result.success && result.corrections.length > 0) {
+            tbody.innerHTML = result.corrections.map(corr => `
+              <tr>
+                <td>${corr.requestId}</td>
+                <td>${getEmployeeName(corr.employeeId)}</td>
+                <td>${corr.date}</td>
+                <td>${corr.currentPunchIn || '-'} / ${corr.currentPunchOut || '-'}</td>
+                <td>${corr.requestedPunchIn || '-'} / ${corr.requestedPunchOut || '-'}</td>
+                <td>${corr.reason || '-'}</td>
+                <td><span class="badge ${getStatusBadgeClass(corr.status)}">${corr.status}</span></td>
+                <td>
+                  ${corr.status === 'Pending' ? `
+                    <div class="action-buttons">
+                      <button class="btn btn-success btn-sm" onclick="quickAction('correction', '${corr.requestId}', 'approve')"><i class="fas fa-check"></i></button>
+                      <button class="btn btn-danger btn-sm" onclick="quickAction('correction', '${corr.requestId}', 'reject')"><i class="fas fa-times"></i></button>
+                    </div>
+                  ` : '-'}
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666;">No correction requests</td></tr>';
+          }
+        })
+        .getPunchCorrections(sessionId);
+    }
+
+    // Quick Actions
+    function quickAction(type, id, action) {
+      currentAction = type;
+      currentActionId = id;
+      
+      const actionName = action === 'approve' ? 'Approve' : 'Reject';
+      const typeName = type === 'leave' ? 'Leave Request' : 'Correction Request';
+      
+      document.getElementById('actionModalTitle').textContent = actionName + ' ' + typeName;
+      document.getElementById('actionModalMessage').textContent = 'Are you sure you want to ' + action + ' this ' + typeName.toLowerCase() + '?';
+      document.getElementById('actionComments').value = '';
+      
+      document.getElementById('actionRejectBtn').style.display = action === 'approve' ? 'inline-flex' : 'none';
+      document.getElementById('actionApproveBtn').style.display = action === 'approve' ? 'inline-flex' : 'none';
+      document.getElementById('actionApproveBtn').style.display = 'inline-flex';
+      document.getElementById('actionRejectBtn').style.display = 'inline-flex';
+      
+      document.getElementById('actionModal').classList.add('active');
+    }
+
+    function executeAction(action) {
+      const comments = document.getElementById('actionComments').value;
+      
+      Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      
+      if (currentAction === 'leave') {
+        if (action === 'approve') {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              Swal.close();
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                closeModal('actionModal');
+                loadDashboard();
+                loadAllLeaves();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .approveLeave(sessionId, currentActionId, comments);
+        } else {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              Swal.close();
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                closeModal('actionModal');
+                loadDashboard();
+                loadAllLeaves();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .rejectLeave(sessionId, currentActionId, comments);
+        }
+      } else if (currentAction === 'correction') {
+        if (action === 'approve') {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              Swal.close();
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                closeModal('actionModal');
+                loadDashboard();
+                loadAllCorrections();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .approvePunchCorrection(sessionId, currentActionId, comments);
+        } else {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              Swal.close();
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                closeModal('actionModal');
+                loadDashboard();
+                loadAllCorrections();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .rejectPunchCorrection(sessionId, currentActionId, comments);
+        }
+      }
+    }
+
+    // Warnings
+    function loadWarnings() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('warningsTableBody');
+          if (result.success && result.warnings.length > 0) {
+            tbody.innerHTML = result.warnings.map(warning => `
+              <tr>
+                <td>${warning.warningId}</td>
+                <td>${getEmployeeName(warning.employeeId)}</td>
+                <td>${warning.issueDate}</td>
+                <td>${warning.reason}</td>
+                <td>${warning.description || '-'}</td>
+                <td><span class="badge ${warning.status === 'Active' ? 'badge-warning' : 'badge-secondary'}">${warning.status}</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" onclick="viewWarningPDF('${warning.warningId}')">
+                    <i class="fas fa-file-pdf"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666;">No warnings issued</td></tr>';
+          }
+        })
+        .getWarnings(sessionId);
+    }
+
+    function showWarningModal() {
+      document.getElementById('warningEmployee').value = '';
+      document.getElementById('warningReason').value = '';
+      document.getElementById('warningDescription').value = '';
+      document.getElementById('warningModal').classList.add('active');
+    }
+
+    function issueWarning() {
+      const warningData = {
+        employeeId: document.getElementById('warningEmployee').value,
+        issueDate: document.getElementById('warningDate').value,
+        reason: document.getElementById('warningReason').value,
+        description: document.getElementById('warningDescription').value
+      };
+
+      if (!warningData.employeeId || !warningData.reason) {
+        Swal.fire('Error', 'Please fill all required fields', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Issuing Warning...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            closeModal('warningModal');
+            loadWarnings();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .issueWarning(sessionId, warningData);
+    }
+
+    function viewWarningPDF(warningId) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(result.htmlContent);
+            newWindow.document.close();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .generateWarningPDF(sessionId, warningId);
+    }
+
+    // Holidays
+    function loadHolidays() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('holidaysTableBody');
+          if (result.success && result.holidays.length > 0) {
+            tbody.innerHTML = result.holidays.map(holiday => `
+              <tr>
+                <td>${holiday.name}</td>
+                <td>${holiday.date}</td>
+                <td>${holiday.type}</td>
+                <td><span class="badge ${holiday.optional ? 'badge-info' : 'badge-secondary'}">${holiday.optional ? 'Yes' : 'No'}</span></td>
+                <td>
+                  <button class="btn btn-danger btn-sm" onclick="deleteHoliday('${holiday.holidayId}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No holidays defined</td></tr>';
+          }
+        })
+        .getHolidays(sessionId);
+    }
+
+    function showHolidayModal() {
+      document.getElementById('holidayName').value = '';
+      document.getElementById('holidayDate').value = '';
+      document.getElementById('holidayType').value = 'National';
+      document.getElementById('holidayOptional').checked = false;
+      document.getElementById('holidayModal').classList.add('active');
+    }
+
+    function saveHoliday() {
+      const holidayData = {
+        name: document.getElementById('holidayName').value.trim(),
+        date: document.getElementById('holidayDate').value,
+        type: document.getElementById('holidayType').value,
+        optional: document.getElementById('holidayOptional').checked
+      };
+
+      if (!holidayData.name || !holidayData.date) {
+        Swal.fire('Error', 'Please fill all required fields', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            closeModal('holidayModal');
+            loadHolidays();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .addHoliday(sessionId, holidayData);
+    }
+
+    function deleteHoliday(holidayId) {
+      Swal.fire({
+        title: 'Delete Holiday?',
+        text: 'Are you sure you want to delete this holiday?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ea4335',
+        confirmButtonText: 'Yes, delete'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              if (result.success) {
+                Swal.fire('Success', result.message, 'success');
+                loadHolidays();
+              } else {
+                Swal.fire('Error', result.message, 'error');
+              }
+            })
+            .deleteHoliday(sessionId, holidayId);
+        }
+      });
+    }
+
+    // Roster
+    function generateRoster() {
+      const startDate = document.getElementById('rosterStartDate').value;
+      const endDate = document.getElementById('rosterEndDate').value;
+      const weekOffCount = document.getElementById('weekOffCount').value;
+
+      if (!startDate || !endDate) {
+        Swal.fire('Error', 'Please select start and end dates', 'error');
+        return;
+      }
+
+      Swal.fire({ title: 'Generating Roster...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .generateAutoRoster(sessionId, startDate, endDate, parseInt(weekOffCount));
+    }
+
+    function loadRoster() {
+      const startDate = document.getElementById('viewRosterStart').value;
+      const endDate = document.getElementById('viewRosterEnd').value;
+
+      if (!startDate || !endDate) {
+        Swal.fire('Error', 'Please select date range', 'error');
+        return;
+      }
+
+      const tbody = document.getElementById('rosterTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" class="loading-spinner"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.roster.length > 0) {
+            tbody.innerHTML = result.roster.map(r => `
+              <tr>
+                <td>${r.name || getEmployeeName(r.employeeId)}</td>
+                <td>${r.date}</td>
+                <td>${r.dayOfWeek}</td>
+                <td><span class="shift-badge ${r.isWeekOff ? 'off' : 'shift-' + r.shift.toLowerCase()}">${r.isWeekOff ? 'W/O' : r.shift}</span></td>
+                <td>${r.isWeekOff ? 'Week Off' : (r.isBuffer ? 'Buffer' : 'Working')}</td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No roster data found</td></tr>';
+          }
+        })
+        .getRoster(sessionId, startDate, endDate);
+    }
+
+    // Charts
+    function createCharts(dashboard) {
+      const attCtx = document.getElementById('attendanceChart').getContext('2d');
+      if (attendanceChart) attendanceChart.destroy();
+      
+      attendanceChart = new Chart(attCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Late', 'Absent'],
+          datasets: [{
+            data: [dashboard.todayStats.present, dashboard.todayStats.late, dashboard.todayStats.absent],
+            backgroundColor: ['#34a853', '#fbbc04', '#ea4335']
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      const deptCtx = document.getElementById('departmentChart').getContext('2d');
+      if (departmentChart) departmentChart.destroy();
+      
+      const deptCounts = {};
+      employeesList.forEach(emp => {
+        if (emp.status === 'active') {
+          deptCounts[emp.department] = (deptCounts[emp.department] || 0) + 1;
+        }
+      });
+      
+      departmentChart = new Chart(deptCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(deptCounts),
+          datasets: [{
+            data: Object.values(deptCounts),
+            backgroundColor: ['#4285f4', '#34a853', '#fbbc04', '#ea4335', '#9c27b0', '#00bcd4']
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    // Utility Functions
+    function showSection(sectionName) {
+      document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+      document.getElementById(sectionName + 'Section').classList.add('active');
+      
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      event.target.closest('.menu-item').classList.add('active');
+      
+      const titles = {
+        'dashboard': 'Dashboard', 'employees': 'Employee Management', 'attendance': 'Attendance Logs',
+        'reports': 'Reports', 'leaves': 'Leave Management', 'corrections': 'Punch Corrections',
+        'warnings': 'Warning Letters', 'holidays': 'Holiday Management', 'roster': 'Roster Management'
+      };
+      document.getElementById('pageTitle').textContent = titles[sectionName] || 'Dashboard';
+      
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('active');
+      }
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function getStatusBadgeClass(status) {
+      status = (status || '').toLowerCase();
+      if (status === 'present' || status === 'approved') return 'badge-success';
+      if (status === 'late' || status === 'pending') return 'badge-warning';
+      if (status === 'absent' || status === 'rejected') return 'badge-danger';
+      return 'badge-secondary';
+    }
+
+    function handleLogout() {
+      Swal.fire({
+        title: 'Logout',
+        text: 'Are you sure you want to logout?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4285f4',
+        confirmButtonText: 'Yes, logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run
+            .withSuccessHandler(function() {
+              localStorage.removeItem('hrms_admin_session');
+              document.getElementById('dashboardPage').style.display = 'none';
+              document.getElementById('loginPage').style.display = 'flex';
+              sessionId = null;
+              currentUser = null;
+            })
+            .logout(sessionId);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
