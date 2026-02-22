@@ -1,0 +1,2702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart HRMS - Employee Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    /* Login Page Styles */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .login-box {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .login-header {
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      padding: 40px 30px;
+      text-align: center;
+      color: white;
+    }
+    
+    .login-header i {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+    
+    .login-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .login-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .login-form {
+      padding: 40px 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    .btn-danger {
+      background: #ea4335;
+      color: white;
+    }
+    
+    .btn-success {
+      background: #34a853;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: #fbbc04;
+      color: #333;
+    }
+    
+    .btn-full {
+      width: 100%;
+    }
+    
+    .forgot-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .forgot-link a {
+      color: #4285f4;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .forgot-link a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Dashboard Styles */
+    .dashboard-container {
+      display: none;
+      min-height: 100vh;
+    }
+    
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: white;
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: transform 0.3s;
+      overflow-y: auto;
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-header i {
+      font-size: 32px;
+      color: #4285f4;
+    }
+    
+    .sidebar-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 25px;
+      color: #666;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+    
+    .menu-item:hover, .menu-item.active {
+      background: #f8f9fa;
+      color: #4285f4;
+      border-left-color: #4285f4;
+    }
+    
+    .menu-item i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    .main-content {
+      margin-left: 260px;
+      padding: 30px;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+    
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: white;
+      padding: 20px 25px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .user-details h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .user-details p {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    /* Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-card.primary {
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      color: white;
+    }
+    
+    .stat-card.success {
+      background: linear-gradient(135deg, #34a853 0%, #0d9488 100%);
+      color: white;
+    }
+    
+    .stat-card.warning {
+      background: linear-gradient(135deg, #fbbc04 0%, #f59e0b 100%);
+      color: white;
+    }
+    
+    .stat-card.danger {
+      background: linear-gradient(135deg, #ea4335 0%, #dc2626 100%);
+      color: white;
+    }
+    
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    /* Content Sections */
+    .content-section {
+      display: none;
+    }
+    
+    .content-section.active {
+      display: block;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .card-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .card-body {
+      padding: 25px;
+    }
+    
+    /* Punch Section */
+    .punch-container {
+      text-align: center;
+      padding: 30px;
+    }
+    
+    .punch-time {
+      font-size: 48px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .punch-date {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .punch-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    
+    .punch-status.punched-in {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .punch-status.not-punched {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .punch-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .punch-btn {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .punch-btn i {
+      font-size: 32px;
+    }
+    
+    .punch-btn.punch-in {
+      background: linear-gradient(135deg, #34a853 0%, #0d9488 100%);
+      color: white;
+    }
+    
+    .punch-btn.punch-out {
+      background: linear-gradient(135deg, #ea4335 0%, #dc2626 100%);
+      color: white;
+    }
+    
+    .punch-btn:hover {
+      transform: scale(1.05);
+    }
+    
+    .punch-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Camera Preview */
+    .camera-container {
+      margin: 20px 0;
+      display: none;
+    }
+    
+    .camera-preview {
+      width: 100%;
+      max-width: 320px;
+      height: 240px;
+      border-radius: 15px;
+      background: #000;
+      margin: 0 auto;
+    }
+    
+    .selfie-preview {
+      width: 100%;
+      max-width: 320px;
+      height: 240px;
+      border-radius: 15px;
+      object-fit: cover;
+      margin: 10px auto;
+      display: none;
+    }
+    
+    .location-status {
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .location-status.valid {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .location-status.invalid {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .location-status.checking {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    /* Shift Details Table */
+    .shift-calendar {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .shift-calendar th {
+      background: #4285f4;
+      color: white;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    
+    .shift-calendar th:first-child {
+      border-radius: 10px 0 0 0;
+    }
+    
+    .shift-calendar th:last-child {
+      border-radius: 0 10px 0 0;
+    }
+    
+    .shift-calendar td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+    
+    .shift-calendar tr:hover td {
+      background: #f8f9fa;
+    }
+    
+    .shift-calendar .today {
+      background: #e3f2fd !important;
+      font-weight: 600;
+    }
+    
+    .shift-calendar .week-off {
+      background: #fff3e0;
+    }
+    
+    .shift-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .shift-badge.shift-a {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .shift-badge.shift-b {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    .shift-badge.shift-c {
+      background: #fce4ec;
+      color: #c2185b;
+    }
+    
+    .shift-badge.off {
+      background: #fff3e0;
+      color: #e65100;
+    }
+    
+    .shift-badge.buffer {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    td {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .badge-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .badge-secondary {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .modal-body {
+      padding: 25px;
+    }
+    
+    .modal-footer {
+      padding: 15px 25px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    /* Form Styles */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    
+    /* Profile Edit */
+    .profile-section {
+      display: grid;
+      gap: 15px;
+    }
+    
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .profile-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .profile-value {
+      font-weight: 500;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .profile-value input {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 200px;
+    }
+    
+    .edit-icon {
+      color: #4285f4;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    /* Mobile Styles */
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1100;
+      background: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-top: 80px;
+      }
+      
+      .mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .punch-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .punch-btn {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .profile-value input {
+        width: 150px;
+      }
+    }
+    
+    /* Warning Card */
+    .warning-card {
+      background: #fff3cd;
+      border-left: 4px solid #fbbc04;
+      padding: 15px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 15px;
+    }
+    
+    .warning-card h4 {
+      color: #856404;
+      margin-bottom: 8px;
+    }
+    
+    .warning-card p {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+    
+    /* OTP Input */
+    .otp-inputs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .otp-input {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+    }
+    
+    .otp-input:focus {
+      outline: none;
+      border-color: #4285f4;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <i class="fas fa-building"></i>
+        <h1>Smart HRMS</h1>
+        <p>Employee Portal</p>
+      </div>
+      <div class="login-form">
+        <div id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email Address</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleLogin()">
+            <i class="fas fa-sign-in-alt"></i>
+            Sign In
+          </button>
+          <div class="forgot-link">
+            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
+          </div>
+        </div>
+        
+        <div id="forgotForm" style="display: none;">
+          <div class="form-group">
+            <label for="forgotEmail">Email Address</label>
+            <input type="email" id="forgotEmail" placeholder="Enter your registered email" required>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleSendOTP()">
+            <i class="fas fa-paper-plane"></i>
+            Send OTP
+          </button>
+          <div class="forgot-link">
+            <a href="#" onclick="showLoginForm()">Back to Login</a>
+          </div>
+        </div>
+        
+        <div id="otpForm" style="display: none;">
+          <p style="text-align: center; margin-bottom: 20px; color: #666;">
+            Enter the 6-digit OTP sent to your email
+          </p>
+          <div class="otp-inputs">
+            <input type="text" class="otp-input" maxlength="1" id="otp1" oninput="moveToNext(this, 'otp2')">
+            <input type="text" class="otp-input" maxlength="1" id="otp2" oninput="moveToNext(this, 'otp3')">
+            <input type="text" class="otp-input" maxlength="1" id="otp3" oninput="moveToNext(this, 'otp4')">
+            <input type="text" class="otp-input" maxlength="1" id="otp4" oninput="moveToNext(this, 'otp5')">
+            <input type="text" class="otp-input" maxlength="1" id="otp5" oninput="moveToNext(this, 'otp6')">
+            <input type="text" class="otp-input" maxlength="1" id="otp6">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleVerifyOTP()">
+            <i class="fas fa-check"></i>
+            Verify OTP
+          </button>
+          <div class="forgot-link">
+            <a href="#" onclick="resendOTP()">Resend OTP</a>
+          </div>
+        </div>
+        
+        <div id="resetForm" style="display: none;">
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password" required minlength="6">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleResetPassword()">
+            <i class="fas fa-key"></i>
+            Reset Password
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardPage" class="dashboard-container">
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-building"></i>
+        <h2>Smart HRMS</h2>
+      </div>
+      <nav class="sidebar-menu">
+        <a class="menu-item active" onclick="showSection('dashboard')">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="menu-item" onclick="showSection('attendance')">
+          <i class="fas fa-clock"></i>
+          <span>Attendance</span>
+        </a>
+        <a class="menu-item" onclick="showSection('shifts')">
+          <i class="fas fa-calendar-alt"></i>
+          <span>My Shift Details</span>
+        </a>
+        <a class="menu-item" onclick="showSection('leave')">
+          <i class="fas fa-calendar-check"></i>
+          <span>Leave Management</span>
+        </a>
+        <a class="menu-item" onclick="showSection('corrections')">
+          <i class="fas fa-edit"></i>
+          <span>Punch Correction</span>
+        </a>
+        <a class="menu-item" onclick="showSection('warnings')">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Warning Letters</span>
+        </a>
+        <a class="menu-item" onclick="showSection('history')">
+          <i class="fas fa-history"></i>
+          <span>Attendance History</span>
+        </a>
+        <a class="menu-item" onclick="showSection('profile')">
+          <i class="fas fa-user"></i>
+          <span>My Profile</span>
+        </a>
+        <a class="menu-item" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="top-bar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-details">
+            <h3 id="userName">User Name</h3>
+            <p id="userRole">Employee</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Section -->
+      <section id="dashboardSection" class="content-section active">
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-value" id="presentDays">0</div>
+            <div class="stat-label">Present Days</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="lateDays">0</div>
+            <div class="stat-label">Late Days</div>
+          </div>
+          <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-value" id="absentDays">0</div>
+            <div class="stat-label">Absent Days</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-umbrella-beach"></i></div>
+            <div class="stat-value" id="leaveBalance">0</div>
+            <div class="stat-label">Leave Balance</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Today's Status</h3>
+          </div>
+          <div class="card-body">
+            <div id="todayStatus" style="text-align: center; padding: 20px;">
+              <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #4285f4;"></i>
+              <p style="margin-top: 10px; color: #666;">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Pending Requests</h3>
+            </div>
+            <div class="card-body">
+              <div id="pendingRequests">
+                <p style="text-align: center; color: #666;">No pending requests</p>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Active Warnings</h3>
+              <span class="badge badge-warning" id="warningCount">0</span>
+            </div>
+            <div class="card-body">
+              <div id="activeWarnings">
+                <p style="text-align: center; color: #666;">No active warnings</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attendance Section -->
+      <section id="attendanceSection" class="content-section">
+        <div class="card">
+          <div class="card-body">
+            <div class="punch-container">
+              <div class="punch-time" id="currentTime">00:00:00</div>
+              <div class="punch-date" id="currentDate">Loading...</div>
+              <div class="punch-status" id="punchStatus">
+                <i class="fas fa-circle"></i>
+                <span>Loading...</span>
+              </div>
+              
+              <!-- Location Status -->
+              <div class="location-status checking" id="locationStatus">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Checking location...</span>
+              </div>
+              
+              <!-- Camera Container -->
+              <div class="camera-container" id="cameraContainer">
+                <video class="camera-preview" id="cameraPreview" autoplay playsinline></video>
+                <canvas id="selfieCanvas" style="display: none;"></canvas>
+                <img class="selfie-preview" id="selfiePreview" alt="Captured selfie">
+              </div>
+              
+              <div class="punch-buttons">
+                <button class="punch-btn punch-in" id="punchInBtn" onclick="initiatePunchIn()">
+                  <i class="fas fa-sign-in-alt"></i>
+                  <span>Punch In</span>
+                </button>
+                <button class="punch-btn punch-out" id="punchOutBtn" onclick="initiatePunchOut()" disabled>
+                  <i class="fas fa-sign-out-alt"></i>
+                  <span>Punch Out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Today's Punch Details</h3>
+          </div>
+          <div class="card-body">
+            <div id="punchDetails">
+              <p style="text-align: center; color: #666;">No punch record for today</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Shift Details Section -->
+      <section id="shiftsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>My Shift Details (14-Day Roster)</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="shift-calendar">
+                <thead>
+                  <tr>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                    <th>Sun</th>
+                  </tr>
+                </thead>
+                <tbody id="shiftCalendarBody">
+                  <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px;">
+                      <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #4285f4;"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+              <h4 style="margin-bottom: 10px; color: #333;">Shift Timings:</h4>
+              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <span class="shift-badge shift-a"><strong>Shift A:</strong> 06:00 - 14:00</span>
+                <span class="shift-badge shift-b"><strong>Shift B:</strong> 14:00 - 22:00</span>
+                <span class="shift-badge shift-c"><strong>Shift C:</strong> 22:00 - 06:00</span>
+                <span class="shift-badge off"><strong>OFF:</strong> Week Off</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Leave Section -->
+      <section id="leaveSection" class="content-section">
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-icon"><i class="fas fa-coffee"></i></div>
+            <div class="stat-value" id="casualLeave">0</div>
+            <div class="stat-label">Casual Leave</div>
+          </div>
+          <div class="stat-card danger">
+            <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
+            <div class="stat-value" id="sickLeave">0</div>
+            <div class="stat-label">Sick Leave</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+            <div class="stat-value" id="earnedLeave">0</div>
+            <div class="stat-label">Earned Leave</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-gift"></i></div>
+            <div class="stat-value" id="compOff">0</div>
+            <div class="stat-label">Comp Off</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Apply for Leave</h3>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary" onclick="showLeaveModal()">
+              <i class="fas fa-plus"></i>
+              Apply Leave
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Leave Applications</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Leave ID</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="leaveTableBody">
+                  <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Corrections Section -->
+      <section id="correctionsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Request Punch Correction</h3>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary" onclick="showCorrectionModal()">
+              <i class="fas fa-plus"></i>
+              New Request
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>My Correction Requests</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Date</th>
+                    <th>Current Punch</th>
+                    <th>Requested Punch</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="correctionTableBody">
+                  <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Warnings Section -->
+      <section id="warningsSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>My Warning Letters</h3>
+          </div>
+          <div class="card-body">
+            <div id="warningsList">
+              <p style="text-align: center; color: #666;">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Section -->
+      <section id="historySection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>Attendance History</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row" style="margin-bottom: 20px;">
+              <div class="form-group">
+                <label>From Date</label>
+                <input type="date" id="historyStartDate">
+              </div>
+              <div class="form-group">
+                <label>To Date</label>
+                <input type="date" id="historyEndDate">
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="loadAttendanceHistory()">
+                  <i class="fas fa-search"></i>
+                  Search
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Punch In</th>
+                    <th>Punch Out</th>
+                    <th>Shift</th>
+                    <th>Work Hours</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <tr><td colspan="6" style="text-align: center;">Select date range to view history</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile Section -->
+      <section id="profileSection" class="content-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>My Profile</h3>
+            <button class="btn btn-primary btn-sm" id="editProfileBtn" onclick="toggleProfileEdit()">
+              <i class="fas fa-edit"></i>
+              Edit
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="profile-section" id="profileDisplay">
+              <!-- Profile fields will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Bank Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="profile-section" id="bankDetailsDisplay">
+              <!-- Bank details will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Change Password</h3>
+          </div>
+          <div class="card-body">
+            <div style="max-width: 400px;">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPwd">
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newPwd">
+              </div>
+              <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPwd">
+              </div>
+              <button class="btn btn-primary" onclick="handleChangePassword()">
+                <i class="fas fa-key"></i>
+                Change Password
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Leave Modal -->
+  <div class="modal" id="leaveModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Apply for Leave</h3>
+        <button class="modal-close" onclick="closeModal('leaveModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Leave Type</label>
+          <select id="leaveType">
+            <option value="Casual">Casual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Earned">Earned Leave</option>
+            <option value="CompOff">Comp Off</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="leaveStartDate">
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="leaveEndDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <textarea id="leaveReason" rows="3" placeholder="Enter reason for leave"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('leaveModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitLeave()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Correction Modal -->
+  <div class="modal" id="correctionModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Request Punch Correction</h3>
+        <button class="modal-close" onclick="closeModal('correctionModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="correctionDate">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Current Punch In</label>
+            <input type="time" id="currentPunchIn" readonly>
+          </div>
+          <div class="form-group">
+            <label>Current Punch Out</label>
+            <input type="time" id="currentPunchOut" readonly>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Requested Punch In</label>
+            <input type="time" id="requestedPunchIn">
+          </div>
+          <div class="form-group">
+            <label>Requested Punch Out</label>
+            <input type="time" id="requestedPunchOut">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Reason</label>
+          <textarea id="correctionReason" rows="3" placeholder="Enter reason for correction"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('correctionModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCorrection()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selfie Modal -->
+  <div class="modal" id="selfieModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="selfieModalTitle">Capture Selfie</h3>
+        <button class="modal-close" onclick="cancelSelfie()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <video id="selfieVideo" width="320" height="240" autoplay playsinline style="border-radius: 10px; background: #000;"></video>
+        <canvas id="captureCanvas" style="display: none;"></canvas>
+        <img id="capturedSelfie" style="display: none; border-radius: 10px; max-width: 320px; margin-top: 10px;">
+        <div id="selfieActions" style="margin-top: 15px;">
+          <button class="btn btn-primary" id="captureBtn" onclick="captureSelfie()">
+            <i class="fas fa-camera"></i>
+            Capture
+          </button>
+          <button class="btn btn-success" id="confirmSelfieBtn" onclick="confirmSelfie()" style="display: none;">
+            <i class="fas fa-check"></i>
+            Confirm
+          </button>
+          <button class="btn btn-secondary" id="retakeBtn" onclick="retakeSelfie()" style="display: none;">
+            <i class="fas fa-redo"></i>
+            Retake
+          </button>
+        </div>
+        <div class="location-status checking" id="modalLocationStatus" style="margin-top: 15px;">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Checking location...</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cancelSelfie()">Cancel</button>
+        <button class="btn btn-primary" id="submitPunchBtn" onclick="submitPunchWithSelfie()" disabled>
+          <i class="fas fa-check"></i>
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global Variables
+    let currentUser = null;
+    let sessionId = null;
+    let resetEmail = '';
+    let currentPunchAction = null;
+    let capturedSelfieData = null;
+    let currentLocation = null;
+    let isProfileEditing = false;
+    let videoStream = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateClock();
+      setInterval(updateClock, 1000);
+      
+      const savedSession = localStorage.getItem('hrms_session');
+      if (savedSession) {
+        try {
+          const session = JSON.parse(savedSession);
+          sessionId = session.sessionId;
+          validateSession();
+        } catch(e) {
+          localStorage.removeItem('hrms_session');
+        }
+      }
+    });
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+
+    // Session Validation
+    function validateSession() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.valid) {
+            currentUser = result.user;
+            showDashboard();
+          } else {
+            localStorage.removeItem('hrms_session');
+          }
+        })
+        .validateSession(sessionId);
+    }
+
+    // Login Handlers
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        Swal.fire('Error', 'Please enter email and password', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Signing in...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            currentUser = result.user;
+            sessionId = result.user.sessionId;
+            localStorage.setItem('hrms_session', JSON.stringify({ sessionId: sessionId }));
+            showDashboard();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          Swal.close();
+          Swal.fire('Error', 'Login failed: ' + error.message, 'error');
+        })
+        .login(email, password);
+    }
+
+    // Forgot Password Flow
+    function showForgotPassword() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('forgotForm').style.display = 'block';
+      document.getElementById('otpForm').style.display = 'none';
+      document.getElementById('resetForm').style.display = 'none';
+    }
+
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('forgotForm').style.display = 'none';
+      document.getElementById('otpForm').style.display = 'none';
+      document.getElementById('resetForm').style.display = 'none';
+    }
+
+    function handleSendOTP() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      if (!email) {
+        Swal.fire('Error', 'Please enter your email', 'error');
+        return;
+      }
+
+      resetEmail = email;
+
+      Swal.fire({
+        title: 'Sending OTP...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            document.getElementById('forgotForm').style.display = 'none';
+            document.getElementById('otpForm').style.display = 'block';
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .sendOTP(email);
+    }
+
+    function moveToNext(current, nextId) {
+      if (current.value.length === 1 && nextId) {
+        document.getElementById(nextId).focus();
+      }
+    }
+
+    function handleVerifyOTP() {
+      const otp = document.getElementById('otp1').value +
+                  document.getElementById('otp2').value +
+                  document.getElementById('otp3').value +
+                  document.getElementById('otp4').value +
+                  document.getElementById('otp5').value +
+                  document.getElementById('otp6').value;
+
+      if (otp.length !== 6) {
+        Swal.fire('Error', 'Please enter complete OTP', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Verifying OTP...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            document.getElementById('otpForm').style.display = 'none';
+            document.getElementById('resetForm').style.display = 'block';
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .verifyOTP(resetEmail, otp);
+    }
+
+    function resendOTP() {
+      handleSendOTP();
+    }
+
+    function handleResetPassword() {
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (!newPassword || newPassword.length < 6) {
+        Swal.fire('Error', 'Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        Swal.fire('Error', 'Passwords do not match', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Resetting Password...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success').then(() => {
+              showLoginForm();
+              document.getElementById('forgotEmail').value = '';
+              document.getElementById('newPassword').value = '';
+              document.getElementById('confirmPassword').value = '';
+              for (let i = 1; i <= 6; i++) {
+                document.getElementById('otp' + i).value = '';
+              }
+            });
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .resetPassword(resetEmail, newPassword);
+    }
+
+    // Dashboard Functions
+    function showDashboard() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboardPage').style.display = 'block';
+      
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userRole').textContent = currentUser.designation + ' - ' + currentUser.department;
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+      
+      // Get location
+      getLocation();
+      
+      loadDashboard();
+      loadTodayAttendance();
+      loadLeaveBalance();
+      loadLeaveApplications();
+      loadCorrections();
+      loadShiftDetails();
+      loadWarnings();
+      loadProfile();
+    }
+
+    // Geolocation
+    function getLocation() {
+      const statusDiv = document.getElementById('locationStatus');
+      statusDiv.className = 'location-status checking';
+      statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Getting location...</span>';
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            currentLocation = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            
+            // For demo, assume location is valid
+            statusDiv.className = 'location-status valid';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> <span>Location verified</span>';
+          },
+          function(error) {
+            statusDiv.className = 'location-status invalid';
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>Location access denied. Please enable location.</span>';
+            console.error('Geolocation error:', error);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        statusDiv.className = 'location-status invalid';
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>Geolocation not supported</span>';
+      }
+    }
+
+    // Camera/Selfie Functions
+    function startCamera() {
+      return new Promise((resolve, reject) => {
+        const video = document.getElementById('selfieVideo');
+        
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'user', width: 320, height: 240 },
+            audio: false 
+          })
+          .then(function(stream) {
+            videoStream = stream;
+            video.srcObject = stream;
+            video.play();
+            resolve(true);
+          })
+          .catch(function(error) {
+            console.error('Camera error:', error);
+            reject(error);
+          });
+        } else {
+          reject(new Error('Camera not supported'));
+        }
+      });
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+    }
+
+    function captureSelfie() {
+      const video = document.getElementById('selfieVideo');
+      const canvas = document.getElementById('captureCanvas');
+      const capturedImg = document.getElementById('capturedSelfie');
+      
+      canvas.width = 320;
+      canvas.height = 240;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, 320, 240);
+      
+      capturedSelfieData = canvas.toDataURL('image/jpeg', 0.8);
+      capturedImg.src = capturedSelfieData;
+      capturedImg.style.display = 'block';
+      video.style.display = 'none';
+      
+      document.getElementById('captureBtn').style.display = 'none';
+      document.getElementById('confirmSelfieBtn').style.display = 'inline-flex';
+      document.getElementById('retakeBtn').style.display = 'inline-flex';
+    }
+
+    function retakeSelfie() {
+      const video = document.getElementById('selfieVideo');
+      const capturedImg = document.getElementById('capturedSelfie');
+      
+      capturedImg.style.display = 'none';
+      video.style.display = 'block';
+      
+      document.getElementById('captureBtn').style.display = 'inline-flex';
+      document.getElementById('confirmSelfieBtn').style.display = 'none';
+      document.getElementById('retakeBtn').style.display = 'none';
+      
+      capturedSelfieData = null;
+    }
+
+    function confirmSelfie() {
+      document.getElementById('submitPunchBtn').disabled = false;
+    }
+
+    function cancelSelfie() {
+      stopCamera();
+      closeModal('selfieModal');
+      capturedSelfieData = null;
+      
+      // Reset selfie UI
+      const video = document.getElementById('selfieVideo');
+      const capturedImg = document.getElementById('capturedSelfie');
+      capturedImg.style.display = 'none';
+      video.style.display = 'block';
+      document.getElementById('captureBtn').style.display = 'inline-flex';
+      document.getElementById('confirmSelfieBtn').style.display = 'none';
+      document.getElementById('retakeBtn').style.display = 'none';
+      document.getElementById('submitPunchBtn').disabled = true;
+    }
+
+    // Punch Functions
+    function initiatePunchIn() {
+      if (!currentLocation) {
+        Swal.fire('Warning', 'Location not available. Please enable location services.', 'warning');
+        getLocation();
+        return;
+      }
+      
+      currentPunchAction = 'in';
+      document.getElementById('selfieModalTitle').textContent = 'Capture Selfie for Punch In';
+      document.getElementById('selfieModal').classList.add('active');
+      
+      startCamera().catch(function(error) {
+        Swal.fire('Error', 'Could not access camera: ' + error.message, 'error');
+        closeModal('selfieModal');
+      });
+      
+      // Update location status in modal
+      const modalStatus = document.getElementById('modalLocationStatus');
+      modalStatus.className = 'location-status valid';
+      modalStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span>Location: ' + currentLocation.latitude.toFixed(4) + ', ' + currentLocation.longitude.toFixed(4) + '</span>';
+    }
+
+    function initiatePunchOut() {
+      if (!currentLocation) {
+        Swal.fire('Warning', 'Location not available. Please enable location services.', 'warning');
+        getLocation();
+        return;
+      }
+      
+      currentPunchAction = 'out';
+      document.getElementById('selfieModalTitle').textContent = 'Capture Selfie for Punch Out';
+      document.getElementById('selfieModal').classList.add('active');
+      
+      startCamera().catch(function(error) {
+        Swal.fire('Error', 'Could not access camera: ' + error.message, 'error');
+        closeModal('selfieModal');
+      });
+      
+      const modalStatus = document.getElementById('modalLocationStatus');
+      modalStatus.className = 'location-status valid';
+      modalStatus.innerHTML = '<i class="fas fa-check-circle"></i> <span>Location: ' + currentLocation.latitude.toFixed(4) + ', ' + currentLocation.longitude.toFixed(4) + '</span>';
+    }
+
+    function submitPunchWithSelfie() {
+      if (!capturedSelfieData) {
+        Swal.fire('Error', 'Please capture a selfie first', 'error');
+        return;
+      }
+      
+      closeModal('selfieModal');
+      stopCamera();
+      
+      const locationStr = JSON.stringify(currentLocation);
+      
+      Swal.fire({
+        title: 'Processing...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      if (currentPunchAction === 'in') {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              let message = result.message;
+              if (result.geofence && !result.geofence.valid) {
+                message += '\n\nNote: ' + result.geofence.message;
+              }
+              Swal.fire('Success', message, 'success');
+              loadTodayAttendance();
+              loadDashboard();
+            } else {
+              Swal.fire('Error', result.message, 'error');
+            }
+            capturedSelfieData = null;
+          })
+          .withFailureHandler(function(error) {
+            Swal.close();
+            Swal.fire('Error', 'Punch in failed: ' + error.message, 'error');
+            capturedSelfieData = null;
+          })
+          .punchIn(sessionId, locationStr, capturedSelfieData);
+      } else {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              let message = result.message + ' Work hours: ' + result.workHours;
+              if (result.geofence && !result.geofence.valid) {
+                message += '\n\nNote: ' + result.geofence.message;
+              }
+              Swal.fire('Success', message, 'success');
+              loadTodayAttendance();
+              loadDashboard();
+            } else {
+              Swal.fire('Error', result.message, 'error');
+            }
+            capturedSelfieData = null;
+          })
+          .withFailureHandler(function(error) {
+            Swal.close();
+            Swal.fire('Error', 'Punch out failed: ' + error.message, 'error');
+            capturedSelfieData = null;
+          })
+          .punchOut(sessionId, locationStr, capturedSelfieData);
+      }
+    }
+
+    function loadDashboard() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            const dashboard = result.dashboard;
+            
+            document.getElementById('presentDays').textContent = dashboard.monthlyStats.present;
+            document.getElementById('lateDays').textContent = dashboard.monthlyStats.late;
+            document.getElementById('absentDays').textContent = dashboard.monthlyStats.absent;
+            document.getElementById('leaveBalance').textContent = dashboard.leaveBalance ? dashboard.leaveBalance.total : 0;
+            
+            const todayStatus = document.getElementById('todayStatus');
+            if (dashboard.todayAttendance) {
+              const att = dashboard.todayAttendance;
+              todayStatus.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; text-align: center;">
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Punch In</p>
+                    <p style="font-size: 20px; font-weight: 600; color: #34a853;">${att.punchIn || '-'}</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Punch Out</p>
+                    <p style="font-size: 20px; font-weight: 600; color: #ea4335;">${att.punchOut || '-'}</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Work Hours</p>
+                    <p style="font-size: 20px; font-weight: 600; color: #4285f4;">${att.workHours || 0} hrs</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Status</p>
+                    <span class="badge ${getStatusBadgeClass(att.status)}">${att.status}</span>
+                  </div>
+                </div>
+              `;
+            } else {
+              todayStatus.innerHTML = '<p style="color: #666;">No attendance record for today</p>';
+            }
+            
+            const pendingDiv = document.getElementById('pendingRequests');
+            if (dashboard.pendingRequests.corrections > 0 || dashboard.pendingRequests.leaves > 0) {
+              pendingDiv.innerHTML = `
+                <p><i class="fas fa-edit" style="color: #fbbc04;"></i> Pending Corrections: ${dashboard.pendingRequests.corrections}</p>
+                <p><i class="fas fa-calendar-alt" style="color: #4285f4;"></i> Pending Leaves: ${dashboard.pendingRequests.leaves}</p>
+              `;
+            } else {
+              pendingDiv.innerHTML = '<p style="text-align: center; color: #666;">No pending requests</p>';
+            }
+            
+            document.getElementById('warningCount').textContent = dashboard.warnings || 0;
+          }
+        })
+        .getEmployeeDashboard(sessionId);
+    }
+
+    function loadTodayAttendance() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          console.log('loadTodayAttendance result:', result);
+          
+          const punchStatus = document.getElementById('punchStatus');
+          const punchInBtn = document.getElementById('punchInBtn');
+          const punchOutBtn = document.getElementById('punchOutBtn');
+          const punchDetails = document.getElementById('punchDetails');
+          
+          if (result.success && result.attendance) {
+            const att = result.attendance;
+            const state = result.state || 'unknown';
+            const allRecords = result.allRecords || [];
+            const totalHours = result.totalWorkHours || 0;
+            
+            console.log('Attendance state:', state);
+            
+            // Handle different states
+            if (state === 'punched_in') {
+              // Currently punched in, not punched out
+              punchStatus.className = 'punch-status punched-in';
+              punchStatus.innerHTML = '<i class="fas fa-circle"></i><span>Punched In at ' + att.punchIn + '</span>';
+              punchInBtn.disabled = true;
+              punchOutBtn.disabled = false;
+            } else if (state === 'completed') {
+              // Regular day completed (single record)
+              punchStatus.className = 'punch-status punched-in';
+              punchStatus.innerHTML = '<i class="fas fa-check-circle"></i><span>Day Completed - ' + att.workHours + ' hrs</span>';
+              punchInBtn.disabled = true;
+              punchOutBtn.disabled = true;
+            } else if (state === 'ot_completed') {
+              // OT completed (multiple records, all completed)
+              punchStatus.className = 'punch-status punched-in';
+              punchStatus.innerHTML = '<i class="fas fa-check-circle" style="color: #34a853;"></i><span>Day + OT Completed - Total: ' + totalHours.toFixed(2) + ' hrs</span>';
+              punchInBtn.disabled = false;  // Allow another OT punch-in
+              punchOutBtn.disabled = true;
+            } else {
+              // Unknown state, default to not punched
+              punchStatus.className = 'punch-status not-punched';
+              punchStatus.innerHTML = '<i class="fas fa-circle"></i><span>Not Punched In</span>';
+              punchInBtn.disabled = false;
+              punchOutBtn.disabled = true;
+            }
+            
+            // Build punch details HTML
+            let detailsHTML = '';
+            
+            if (allRecords.length > 1) {
+              // Multiple records (OT scenario) - show all
+              detailsHTML = '<div style="margin-bottom: 15px;"><strong style="color: #4285f4;">Multiple Records for Today:</strong></div>';
+              allRecords.forEach((record, index) => {
+                detailsHTML += `
+                  <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: ${record.status === 'Overtime' ? '#fbbc04' : '#4285f4'};">
+                      ${record.status === 'Overtime' ? '⏰ Overtime Session' : '📅 Regular Session'}
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
+                      <div>
+                        <p style="color: #666; margin-bottom: 5px; font-size: 12px;">Punch In</p>
+                        <p style="font-size: 16px; font-weight: 600;">${record.punchIn || '-'}</p>
+                      </div>
+                      <div>
+                        <p style="color: #666; margin-bottom: 5px; font-size: 12px;">Punch Out</p>
+                        <p style="font-size: 16px; font-weight: 600;">${record.punchOut || '-'}</p>
+                      </div>
+                      <div>
+                        <p style="color: #666; margin-bottom: 5px; font-size: 12px;">Hours</p>
+                        <p style="font-size: 16px; font-weight: 600;">${record.workHours || 0} hrs</p>
+                      </div>
+                      <div>
+                        <p style="color: #666; margin-bottom: 5px; font-size: 12px;">Status</p>
+                        <span class="badge ${getStatusBadgeClass(record.status)}">${record.status || 'Pending'}</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              });
+              detailsHTML += `
+                <div style="background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                  <strong>Total Work Hours Today: ${totalHours.toFixed(2)} hrs</strong>
+                </div>
+              `;
+            } else {
+              // Single record or no record
+              detailsHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Punch In</p>
+                    <p style="font-size: 18px; font-weight: 600;">${att.punchIn || '-'}</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Punch Out</p>
+                    <p style="font-size: 18px; font-weight: 600;">${att.punchOut || '-'}</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Shift</p>
+                    <p style="font-size: 18px; font-weight: 600;">${att.shift || 'A'}</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Work Hours</p>
+                    <p style="font-size: 18px; font-weight: 600;">${att.workHours || 0} hrs</p>
+                  </div>
+                  <div>
+                    <p style="color: #666; margin-bottom: 5px;">Status</p>
+                    <span class="badge ${getStatusBadgeClass(att.status)}">${att.status || 'Pending'}</span>
+                  </div>
+                </div>
+              `;
+            }
+            
+            punchDetails.innerHTML = detailsHTML;
+          } else {
+            // No attendance record for today
+            punchStatus.className = 'punch-status not-punched';
+            punchStatus.innerHTML = '<i class="fas fa-circle"></i><span>Not Punched In</span>';
+            punchInBtn.disabled = false;
+            punchOutBtn.disabled = true;
+            punchDetails.innerHTML = '<p style="text-align: center; color: #666;">No punch record for today</p>';
+          }
+        })
+        .getTodayAttendance(sessionId);
+    }
+
+    // Shift Details
+    function loadShiftDetails() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            renderShiftCalendar(result.shifts);
+          }
+        })
+        .getMyShiftDetails(sessionId);
+    }
+
+    function renderShiftCalendar(shifts) {
+      const tbody = document.getElementById('shiftCalendarBody');
+      
+      // Group shifts by week
+      const weeks = [];
+      let currentWeek = [];
+      
+      shifts.forEach((shift, index) => {
+        const date = new Date(shift.date);
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        // Convert to Monday-based (0 = Monday, 6 = Sunday)
+        const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        
+        // Fill empty cells for first week
+        if (currentWeek.length === 0 && adjustedDay > 0) {
+          for (let i = 0; i < adjustedDay; i++) {
+            currentWeek.push({ empty: true });
+          }
+        }
+        
+        currentWeek.push(shift);
+        
+        // If week is complete (7 days) or this is the last shift
+        if (currentWeek.length >= 7 || index === shifts.length - 1) {
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+      });
+      
+      let html = '';
+      weeks.forEach(week => {
+        html += '<tr>';
+        for (let i = 0; i < 7; i++) {
+          const shift = week[i];
+          if (!shift || shift.empty) {
+            html += '<td style="background: #f5f5f5;"></td>';
+          } else {
+            const todayClass = shift.isToday ? 'today' : '';
+            const weekOffClass = shift.isWeekOff ? 'week-off' : '';
+            const shiftClass = shift.isWeekOff ? 'off' : (shift.isBuffer ? 'buffer' : 'shift-' + shift.shift.toLowerCase());
+            
+            html += `
+              <td class="${todayClass} ${weekOffClass}">
+                <div style="font-size: 12px; color: #666;">${shift.date.split('-')[2]}</div>
+                <span class="shift-badge ${shiftClass}">${shift.shift}</span>
+                <div style="font-size: 10px; color: #999; margin-top: 3px;">${shift.time.split(' - ')[0]}</div>
+              </td>
+            `;
+          }
+        }
+        html += '</tr>';
+      });
+      
+      tbody.innerHTML = html;
+    }
+
+    // Leave Functions
+    function loadLeaveBalance() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.balance) {
+            document.getElementById('casualLeave').textContent = result.balance.casual;
+            document.getElementById('sickLeave').textContent = result.balance.sick;
+            document.getElementById('earnedLeave').textContent = result.balance.earned;
+            document.getElementById('compOff').textContent = result.balance.compOff;
+          }
+        })
+        .getLeaveBalance(sessionId);
+    }
+
+    function loadLeaveApplications() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('leaveTableBody');
+          if (result.success && result.leaves.length > 0) {
+            tbody.innerHTML = result.leaves.map(leave => `
+              <tr>
+                <td>${leave.leaveId}</td>
+                <td>${leave.leaveType}</td>
+                <td>${leave.startDate}</td>
+                <td>${leave.endDate}</td>
+                <td>${leave.days}</td>
+                <td><span class="badge ${getStatusBadgeClass(leave.status)}">${leave.status}</span></td>
+                <td>${leave.reason || '-'}</td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No leave applications</td></tr>';
+          }
+        })
+        .getLeaveApplications(sessionId);
+    }
+
+    function showLeaveModal() {
+      document.getElementById('leaveModal').classList.add('active');
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('leaveStartDate').value = today;
+      document.getElementById('leaveEndDate').value = today;
+    }
+
+    function submitLeave() {
+      const leaveData = {
+        leaveType: document.getElementById('leaveType').value,
+        startDate: document.getElementById('leaveStartDate').value,
+        endDate: document.getElementById('leaveEndDate').value,
+        reason: document.getElementById('leaveReason').value
+      };
+
+      if (!leaveData.startDate || !leaveData.endDate) {
+        Swal.fire('Error', 'Please select dates', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Submitting...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            closeModal('leaveModal');
+            loadLeaveBalance();
+            loadLeaveApplications();
+            loadDashboard();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .applyLeave(sessionId, leaveData);
+    }
+
+    // Correction Functions
+    function loadCorrections() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const tbody = document.getElementById('correctionTableBody');
+          if (result.success && result.corrections.length > 0) {
+            tbody.innerHTML = result.corrections.map(c => `
+              <tr>
+                <td>${c.requestId}</td>
+                <td>${c.date}</td>
+                <td>${c.currentPunchIn || '-'} / ${c.currentPunchOut || '-'}</td>
+                <td>${c.requestedPunchIn || '-'} / ${c.requestedPunchOut || '-'}</td>
+                <td>${c.reason || '-'}</td>
+                <td><span class="badge ${getStatusBadgeClass(c.status)}">${c.status}</span></td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No correction requests</td></tr>';
+          }
+        })
+        .getPunchCorrections(sessionId);
+    }
+
+    function showCorrectionModal() {
+      document.getElementById('correctionModal').classList.add('active');
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('correctionDate').value = today;
+    }
+
+    function submitCorrection() {
+      const correctionData = {
+        date: document.getElementById('correctionDate').value,
+        currentPunchIn: document.getElementById('currentPunchIn').value,
+        currentPunchOut: document.getElementById('currentPunchOut').value,
+        requestedPunchIn: document.getElementById('requestedPunchIn').value,
+        requestedPunchOut: document.getElementById('requestedPunchOut').value,
+        reason: document.getElementById('correctionReason').value
+      };
+
+      if (!correctionData.date) {
+        Swal.fire('Error', 'Please select date', 'error');
+        return;
+      }
+
+      if (!correctionData.requestedPunchIn && !correctionData.requestedPunchOut) {
+        Swal.fire('Error', 'Please enter at least one correction', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Submitting...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            closeModal('correctionModal');
+            loadCorrections();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .requestPunchCorrection(sessionId, correctionData);
+    }
+
+    // Warnings
+    function loadWarnings() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          const warningsDiv = document.getElementById('warningsList');
+          const activeWarningsDiv = document.getElementById('activeWarnings');
+          
+          if (result.success && result.warnings.length > 0) {
+            warningsDiv.innerHTML = result.warnings.map(w => `
+              <div class="warning-card">
+                <h4><i class="fas fa-exclamation-triangle"></i> ${w.reason}</h4>
+                <p><strong>Date:</strong> ${w.issueDate}</p>
+                <p><strong>Description:</strong> ${w.description || 'No additional details'}</p>
+                <p><strong>Status:</strong> <span class="badge ${w.status === 'Active' ? 'badge-warning' : 'badge-secondary'}">${w.status}</span></p>
+                <button class="btn btn-secondary btn-sm" onclick="downloadWarningPDF('${w.warningId}')">
+                  <i class="fas fa-download"></i> Download PDF
+                </button>
+              </div>
+            `).join('');
+            
+            const activeCount = result.warnings.filter(w => w.status === 'Active').length;
+            if (activeCount > 0) {
+              activeWarningsDiv.innerHTML = `
+                <p style="text-align: center; color: #856404;">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  You have ${activeCount} active warning(s)
+                </p>
+              `;
+            }
+          } else {
+            warningsDiv.innerHTML = '<p style="text-align: center; color: #666;">No warning letters</p>';
+          }
+        })
+        .getWarnings(sessionId);
+    }
+
+    function downloadWarningPDF(warningId) {
+      Swal.fire({
+        title: 'Generating PDF...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+      
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            // Open HTML in new window for printing/saving as PDF
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(result.htmlContent);
+            printWindow.document.close();
+            printWindow.print();
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .generateWarningPDF(sessionId, warningId);
+    }
+
+    // History
+    function loadAttendanceHistory() {
+      const startDate = document.getElementById('historyStartDate').value;
+      const endDate = document.getElementById('historyEndDate').value;
+
+      if (!startDate || !endDate) {
+        Swal.fire('Error', 'Please select date range', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Loading...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          const tbody = document.getElementById('historyTableBody');
+          if (result.success && result.history.length > 0) {
+            tbody.innerHTML = result.history.map(h => `
+              <tr>
+                <td>${h.date}</td>
+                <td>${h.punchIn || '-'}</td>
+                <td>${h.punchOut || '-'}</td>
+                <td>${h.shift || '-'}</td>
+                <td>${h.workHours || 0} hrs</td>
+                <td><span class="badge ${getStatusBadgeClass(h.status)}">${h.status || 'Pending'}</span></td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No records found</td></tr>';
+          }
+        })
+        .getAttendanceHistory(sessionId, startDate, endDate);
+    }
+
+    // Profile
+    function loadProfile() {
+      const profileDiv = document.getElementById('profileDisplay');
+      const bankDiv = document.getElementById('bankDetailsDisplay');
+      
+      profileDiv.innerHTML = `
+        <div class="profile-row">
+          <span class="profile-label">Employee ID</span>
+          <span class="profile-value">${currentUser.id}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Name</span>
+          <span class="profile-value">${currentUser.name}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Email</span>
+          <span class="profile-value">${currentUser.email}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Phone</span>
+          <span class="profile-value">
+            <span id="phoneDisplay">${currentUser.phone || '-'}</span>
+            <input type="text" id="phoneInput" value="${currentUser.phone || ''}" style="display: none;">
+          </span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Department</span>
+          <span class="profile-value">${currentUser.department}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Designation</span>
+          <span class="profile-value">${currentUser.designation}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Join Date</span>
+          <span class="profile-value">${currentUser.joinDate || '-'}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Shift</span>
+          <span class="profile-value">${currentUser.shift || 'A'}</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Week Off</span>
+          <span class="profile-value">${currentUser.weekOffDay || 'Sunday'}</span>
+        </div>
+      `;
+      
+      bankDiv.innerHTML = `
+        <div class="profile-row">
+          <span class="profile-label">Bank Name</span>
+          <span class="profile-value">
+            <span id="bankNameDisplay">${currentUser.bankName || '-'}</span>
+            <input type="text" id="bankNameInput" value="${currentUser.bankName || ''}" style="display: none;" placeholder="Enter bank name">
+          </span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Account Number</span>
+          <span class="profile-value">
+            <span id="accountNumberDisplay">${currentUser.accountNumber || '-'}</span>
+            <input type="text" id="accountNumberInput" value="${currentUser.accountNumber || ''}" style="display: none;" placeholder="Enter account number">
+          </span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">IFSC Code</span>
+          <span class="profile-value">
+            <span id="ifscCodeDisplay">${currentUser.ifscCode || '-'}</span>
+            <input type="text" id="ifscCodeInput" value="${currentUser.ifscCode || ''}" style="display: none;" placeholder="Enter IFSC code">
+          </span>
+        </div>
+      `;
+    }
+
+    function toggleProfileEdit() {
+      isProfileEditing = !isProfileEditing;
+      const btn = document.getElementById('editProfileBtn');
+      
+      if (isProfileEditing) {
+        btn.innerHTML = '<i class="fas fa-save"></i> Save';
+        btn.className = 'btn btn-success btn-sm';
+        
+        // Show inputs
+        document.getElementById('phoneDisplay').style.display = 'none';
+        document.getElementById('phoneInput').style.display = 'inline-block';
+        document.getElementById('bankNameDisplay').style.display = 'none';
+        document.getElementById('bankNameInput').style.display = 'inline-block';
+        document.getElementById('accountNumberDisplay').style.display = 'none';
+        document.getElementById('accountNumberInput').style.display = 'inline-block';
+        document.getElementById('ifscCodeDisplay').style.display = 'none';
+        document.getElementById('ifscCodeInput').style.display = 'inline-block';
+      } else {
+        // Save
+        const profileData = {
+          phone: document.getElementById('phoneInput').value.trim(),
+          bankName: document.getElementById('bankNameInput').value.trim(),
+          accountNumber: document.getElementById('accountNumberInput').value.trim(),
+          ifscCode: document.getElementById('ifscCodeInput').value.trim()
+        };
+        
+        Swal.fire({
+          title: 'Saving...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+        
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire('Success', result.message, 'success');
+              
+              // Update current user
+              currentUser.phone = profileData.phone;
+              currentUser.bankName = profileData.bankName;
+              currentUser.accountNumber = profileData.accountNumber;
+              currentUser.ifscCode = profileData.ifscCode;
+              
+              loadProfile();
+              
+              btn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+              btn.className = 'btn btn-primary btn-sm';
+              isProfileEditing = false;
+            } else {
+              Swal.fire('Error', result.message, 'error');
+              isProfileEditing = true;
+            }
+          })
+          .updateOwnProfile(sessionId, profileData);
+      }
+    }
+
+    function handleChangePassword() {
+      const currentPwd = document.getElementById('currentPwd').value;
+      const newPwd = document.getElementById('newPwd').value;
+      const confirmPwd = document.getElementById('confirmPwd').value;
+
+      if (!currentPwd || !newPwd || !confirmPwd) {
+        Swal.fire('Error', 'Please fill all fields', 'error');
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        Swal.fire('Error', 'Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      if (newPwd !== confirmPwd) {
+        Swal.fire('Error', 'Passwords do not match', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Changing Password...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          Swal.close();
+          if (result.success) {
+            Swal.fire('Success', result.message, 'success');
+            document.getElementById('currentPwd').value = '';
+            document.getElementById('newPwd').value = '';
+            document.getElementById('confirmPwd').value = '';
+          } else {
+            Swal.fire('Error', result.message, 'error');
+          }
+        })
+        .changePassword(sessionId, currentPwd, newPwd);
+    }
+
+    // Navigation
+    function showSection(section) {
+      document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+      event.target.closest('.menu-item').classList.add('active');
+      
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(section + 'Section').classList.add('active');
+      
+      const titles = {
+        'dashboard': 'Dashboard',
+        'attendance': 'Attendance',
+        'shifts': 'My Shift Details',
+        'leave': 'Leave Management',
+        'corrections': 'Punch Correction',
+        'warnings': 'Warning Letters',
+        'history': 'Attendance History',
+        'profile': 'My Profile'
+      };
+      document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
+      
+      document.getElementById('sidebar').classList.remove('active');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function handleLogout() {
+      Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to logout?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4285f4',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run
+            .withSuccessHandler(function() {
+              localStorage.removeItem('hrms_session');
+              location.reload();
+            })
+            .logout(sessionId);
+        }
+      });
+    }
+
+    function getStatusBadgeClass(status) {
+      status = (status || '').toLowerCase();
+      if (status === 'present' || status === 'approved') return 'badge-success';
+      if (status === 'late') return 'badge-warning';
+      if (status === 'absent' || status === 'rejected') return 'badge-danger';
+      if (status === 'pending') return 'badge-info';
+      if (status === 'overtime') return 'badge-warning';
+      if (status === 'week off working') return 'badge-success';
+      if (status === 'half day') return 'badge-warning';
+      if (status === 'early out') return 'badge-warning';
+      return 'badge-secondary';
+    }
+
+    // Close modal on outside click
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
